@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía de estudio Product Owner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE everyday study tool, calm and focused
+   IDEA a deck of index cards on a study desk, each topic a deck, a quiz closes each deck
+   PICTURE the large current card itself, with its deck progress drawn as a stack
+   COLOUR deep green ground band, white cards, lime-white for progress, coral for mistakes
+   TYPE Inter Tight 700 + Inter
+   LAYOUT green band with title and overall progress, then the deck or quiz full width; phone stacks */
+:root{color-scheme:light dark;--bg:light-dark(#f4f7f5,#0d1513);--card:light-dark(#ffffff,#16211e);--ink:light-dark(#101a17,#e6efea);--soft:light-dark(#4a5a55,#a9bab3);--line:light-dark(#d9e3de,#2a3a35);--green:#00463c;--lime:#e6f5c8;--coral:#e0533d;--ok:light-dark(#1d7a50,#5fd39a);--okbg:light-dark(#e3f4ea,#173326);--badbg:light-dark(#fde8e4,#3a1d18);--keybg:light-dark(#eef7dc,#22301b)}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:"Inter Tight",Inter,sans-serif;letter-spacing:-.02em;line-height:1.08;margin:0}
+.top{background:var(--green);color:#fff;padding:clamp(24px,4vw,44px) max(5vw,16px) 0}
+.wrap{max-width:1100px;margin:0 auto}
+.top h1{font-size:clamp(30px,5vw,46px);text-wrap:balance}
+.top p{margin:8px 0 0;color:#cfe5dc;max-width:62ch}
+.prog{display:flex;align-items:center;gap:14px;margin-top:20px;flex-wrap:wrap}
+.track{flex:1 1 220px;height:10px;background:rgba(255,255,255,.18);border-radius:6px;overflow:hidden}
+.track i{display:block;height:100%;background:var(--lime);border-radius:6px;transition:width .4s}
+.prog b{white-space:nowrap;color:var(--lime);font-weight:600}
+.tabs{display:flex;gap:4px;margin-top:22px;flex-wrap:wrap}
+.tabs button{font:600 15px Inter,sans-serif;border:0;background:transparent;color:#cfe5dc;padding:12px 16px;border-radius:10px 10px 0 0;cursor:pointer;min-height:44px}
+.tabs button[aria-selected=true]{background:var(--bg);color:var(--ink)}
+.tabs button:focus-visible,.btn:focus-visible,.opt:focus-visible,.mod:focus-visible{outline:3px solid var(--coral);outline-offset:2px}
+main{padding:clamp(20px,3vw,40px) max(5vw,16px) 56px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+.mod{all:unset;box-sizing:border-box;cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:10px;min-height:190px}
+.mod:hover{border-color:var(--green)}
+.mod .n{font:600 14px Inter;color:var(--soft)}
+.mod h3{font-size:22px}
+.mod p{margin:0;color:var(--soft);font-size:15px;flex:1}
+.mbar{height:6px;background:var(--line);border-radius:4px;overflow:hidden}
+.mbar i{display:block;height:100%;background:var(--ok)}
+.mstate{font-size:14px;color:var(--soft)}
+.mstate.done{color:var(--ok);font-weight:600}
+.intro{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:16px;margin-bottom:24px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+.box h2{font-size:24px;margin-bottom:8px}
+.box p,.box li{color:var(--soft);margin:6px 0}
+.box ul{padding-left:20px;margin:6px 0}
+.deck{max-width:760px;margin:0 auto}
+.crumb{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.crumb h2{font-size:clamp(24px,3.4vw,32px)}
+.stack{position:relative;padding-bottom:14px}
+.stack::before,.stack::after{content:"";position:absolute;left:14px;right:14px;bottom:6px;height:20px;background:var(--card);border:1px solid var(--line);border-radius:16px;z-index:0}
+.stack::after{left:28px;right:28px;bottom:0;opacity:.7}
+.card{position:relative;z-index:1;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:clamp(22px,4vw,40px);min-height:360px;display:flex;flex-direction:column;gap:14px;box-shadow:0 8px 24px rgba(0,40,30,.08);animation:in .25s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.card{animation:none}.track i{transition:none}}
+.card .k{font:600 14px Inter;color:var(--soft)}
+.card h3{font-size:clamp(24px,3.6vw,32px)}
+.card .body p{margin:0 0 10px}
+.card .body ul{margin:0 0 10px;padding-left:22px}
+.card .body li{margin:4px 0}
+.key{background:var(--keybg);border-radius:12px;padding:14px 16px;margin-top:auto}
+.key b{display:block;font-size:14px;margin-bottom:2px}
+.dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:16px 0}
+.dots span{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.dots span.on{background:var(--green)}
+:root[data-theme=dark] .dots span.on{background:var(--lime)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .dots span.on{background:var(--lime)}}
+.nav{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.btn{font:600 16px Inter,sans-serif;min-height:46px;padding:10px 20px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.btn.pri{background:var(--green);border-color:var(--green);color:#fff}
+.btn:disabled{opacity:.4;cursor:default}
+.q{font-size:clamp(20px,2.8vw,24px);font-family:"Inter Tight",Inter,sans-serif;font-weight:700;line-height:1.25;margin:0}
+.opts{display:grid;gap:10px}
+.opt{all:unset;box-sizing:border-box;cursor:pointer;border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;min-height:48px;background:var(--card)}
+.opt:hover:not([disabled]){border-color:var(--green)}
+.opt.ok{border-color:var(--ok);background:var(--okbg)}
+.opt.bad{border-color:var(--coral);background:var(--badbg)}
+.opt[disabled]{cursor:default}
+.why{border-radius:12px;padding:14px 16px;background:var(--keybg)}
+.why b{display:block}
+.score{font:700 clamp(56px,10vw,88px)/1 "Inter Tight",sans-serif;letter-spacing:-.03em}
+.pass{color:var(--ok)}.fail{color:var(--coral)}
+.miss{border-top:1px solid var(--line);padding:12px 0}
+.miss p{margin:4px 0}
+.miss .s{color:var(--soft);font-size:15px}
+.week{display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;border-top:1px solid var(--line);padding:20px 0}
+.week h3{font-size:22px}
+.week .w{font:700 40px/1 "Inter Tight",sans-serif;color:var(--green)}
+:root[data-theme=dark] .week .w{color:var(--lime)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .week .w{color:var(--lime)}}
+.week ul{margin:8px 0 0;padding-left:20px}.week li{margin:6px 0}
+.note{font-size:14px;color:var(--soft);margin-top:24px}
+a{color:inherit}
+@media(max-width:700px){.intro{grid-template-columns:minmax(0,1fr)}.week{grid-template-columns:minmax(0,1fr);gap:4px}.card{min-height:300px}.nav .btn{flex:1 1 auto}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <h1>Guía de estudio Product Owner</h1>
+    <p>Preparación para la certificación PSPO I (Professional Scrum Product Owner I), basada en la Scrum Guide 2020. Leé las tarjetas de cada módulo y cerralo con el quiz.</p>
+    <div class="prog"><div class="track"><i id="pbar" style="width:0"></i></div><b id="ptxt">0 de 6 módulos aprobados</b></div>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="t-mod" data-tab="mod" aria-selected="true">Módulos</button>
+      <button role="tab" id="t-plan" data-tab="plan" aria-selected="false">Plan de 3 semanas</button>
+      <button role="tab" id="t-exam" data-tab="exam" aria-selected="false">Simulacro final</button>
+    </div>
+  </div>
+</header>
+<main><div class="wrap" id="view"></div></main>
+
+<script>
+{
+const M=[
+{t:"Fundamentos de Scrum",d:"Qué es Scrum, en qué teoría se apoya, sus pilares y sus valores.",cards:[
+{h:"Qué es Scrum",b:"<p>Scrum es un <b>marco de trabajo liviano</b> que ayuda a personas, equipos y organizaciones a generar valor con soluciones adaptativas para <b>problemas complejos</b>.</p><p>El ciclo básico: el Product Owner ordena el trabajo en un Product Backlog, el Scrum Team convierte una parte en un Increment de valor durante un Sprint, el equipo y los interesados inspeccionan el resultado y se adaptan. Y se repite.</p>",k:"Scrum es incompleto a propósito: define solo lo mínimo necesario y deja espacio para que cada equipo sume sus propias prácticas."},
+{h:"Teoría: empirismo y Lean",b:"<p><b>Empirismo:</b> el conocimiento viene de la experiencia y las decisiones se toman sobre lo observado, no sobre lo que se predijo.</p><p><b>Pensamiento Lean:</b> reducir el desperdicio y enfocarse en lo esencial.</p><p>Scrum trabaja de forma <b>iterativa e incremental</b> para mejorar la previsibilidad y controlar el riesgo.</p>",k:"Si una opción habla de planificar todo de antemano o de seguir un plan fijo, casi seguro es incorrecta."},
+{h:"Los tres pilares",b:"<ul><li><b>Transparencia:</b> el proceso y el trabajo tienen que ser visibles para quienes lo hacen y quienes lo reciben. Con poca transparencia se toman decisiones que bajan el valor y suben el riesgo.</li><li><b>Inspección:</b> revisar seguido los artefactos y el progreso para detectar problemas. Los eventos dan la cadencia.</li><li><b>Adaptación:</b> si algo se desvía, se ajusta lo antes posible.</li></ul>",k:"La cadena es: la transparencia permite la inspección, y la inspección permite la adaptación. Inspeccionar sin adaptar no sirve."},
+{h:"Los cinco valores",b:"<p><b>Compromiso, Foco, Franqueza, Respeto y Coraje</b> (en inglés: Commitment, Focus, Openness, Respect, Courage).</p><p>Cuando el equipo vive estos valores, los pilares cobran vida y se genera confianza.</p>",k:"Memorizalos en inglés también: en el examen aparecen así. \"Velocidad\" o \"Calidad\" no son valores de Scrum."}
+],qz:[
+{q:"¿En qué se basa la teoría de Scrum?",o:["Empirismo y pensamiento Lean","Planificación predictiva detallada","Lean y Six Sigma","Kanban y gestión de riesgos"],a:0,w:"La Scrum Guide dice que Scrum se basa en el empirismo y en el pensamiento Lean."},
+{q:"¿Cuáles son los tres pilares empíricos de Scrum?",o:["Transparencia, inspección y adaptación","Compromiso, foco y coraje","Planificar, ejecutar y controlar","Transparencia, respeto y adaptación"],a:0,w:"Compromiso, foco y coraje son valores, no pilares."},
+{q:"¿Qué riesgo trae que los artefactos tengan poca transparencia?",o:["Decisiones que reducen el valor y aumentan el riesgo","Sprints más largos","Que el Scrum Master tenga que intervenir","Ninguno, si el equipo es experimentado"],a:0,w:"Las decisiones se basan en el estado percibido de los artefactos; si no es transparente, las decisiones empeoran."},
+{q:"¿Cuál de estos NO es un valor de Scrum?",o:["Velocidad","Franqueza","Coraje","Respeto"],a:0,w:"Los valores son Compromiso, Foco, Franqueza, Respeto y Coraje."},
+{q:"Verdadero o falso: Scrum es intencionalmente incompleto.",o:["Verdadero","Falso"],a:0,w:"Define solo las partes necesarias para implementar su teoría; el resto lo aportan las prácticas de cada equipo."}
+]},
+{t:"El Scrum Team",d:"Cómo se forma el equipo, su tamaño y las tres responsabilidades.",cards:[
+{h:"La unidad fundamental",b:"<p>Un Scrum Team tiene <b>un Scrum Master, un Product Owner y Developers</b>. No hay subequipos ni jerarquías: es una unidad enfocada en un objetivo a la vez, el <b>Objetivo del Producto</b> (Product Goal).</p><p>Suele tener <b>10 personas o menos</b>.</p>",k:"La guía de 2017 hablaba de 3 a 9 Developers. En la de 2020 es \"10 o menos\" para todo el equipo. Es una trampa frecuente."},
+{h:"Multifuncional y autogestionado",b:"<p><b>Multifuncional:</b> entre todos tienen las habilidades para crear valor en cada Sprint.</p><p><b>Autogestionado:</b> deciden internamente quién hace qué, cuándo y cómo.</p><p>El equipo es responsable de todo lo relacionado con el producto: colaborar con interesados, verificar, mantener, operar, experimentar e investigar.</p>",k:"Todo el Scrum Team es responsable de crear un Increment valioso y útil en cada Sprint, no solo los Developers."},
+{h:"Varios equipos, un producto",b:"<p>Si el equipo crece demasiado, conviene dividirlo en varios Scrum Teams enfocados en el mismo producto.</p><p>Esos equipos comparten <b>el mismo Objetivo del Producto, el mismo Product Backlog y el mismo Product Owner</b>.</p>",k:"Un producto, un Product Backlog, un Product Owner. Siempre."},
+{h:"Developers",b:"<p>Son quienes se comprometen a crear el Increment en cada Sprint. Siempre son responsables de:</p><ul><li>Crear el plan del Sprint, el Sprint Backlog.</li><li>Asegurar la calidad cumpliendo la Definición de Terminado (Definition of Done).</li><li>Adaptar su plan cada día hacia el Objetivo del Sprint.</li><li>Hacerse responsables entre sí como profesionales.</li></ul>",k:"\"Developers\" no significa solo programadores: incluye a cualquiera que construya el Increment."},
+{h:"Scrum Master",b:"<p>Es responsable de establecer Scrum como lo define la guía y de la <b>efectividad del Scrum Team</b>. Es un líder que sirve al equipo, al Product Owner y a la organización.</p><p>Al Product Owner lo ayuda con técnicas para definir el Objetivo del Producto, gestionar el backlog y facilitar la colaboración con los interesados.</p>",k:"El Scrum Master no es un jefe de proyecto ni asigna tareas."}
+],qz:[
+{q:"Según la Scrum Guide 2020, ¿qué tamaño suele tener un Scrum Team?",o:["10 personas o menos","Entre 3 y 9 Developers","Entre 5 y 7 personas","No hay recomendación"],a:0,w:"\"3 a 9 Developers\" era la guía de 2017. La de 2020 dice 10 personas o menos."},
+{q:"¿Quién decide quién hace qué, cuándo y cómo dentro del Scrum Team?",o:["El propio Scrum Team","El Scrum Master","El Product Owner","El gerente del área"],a:0,w:"Los Scrum Teams son autogestionados."},
+{q:"Tres Scrum Teams trabajan sobre el mismo producto. ¿Qué deben compartir?",o:["Objetivo del Producto, Product Backlog y Product Owner","Scrum Master, Daily Scrum y Sprint Backlog","Solo la Definición de Terminado","Nada, cada equipo es independiente"],a:0,w:"Un producto tiene un único Product Backlog, un único Product Owner y un único Objetivo del Producto."},
+{q:"¿Quién es responsable de crear el Sprint Backlog?",o:["Los Developers","El Product Owner","El Scrum Master","El Product Owner junto con los interesados"],a:0,w:"Es una de las responsabilidades de los Developers: es su plan."},
+{q:"¿De qué es responsable el Scrum Master?",o:["De la efectividad del Scrum Team","De maximizar el valor del producto","De asignar tareas a los Developers","De aprobar el Increment"],a:0,w:"Maximizar el valor es del Product Owner; el Scrum Master responde por la efectividad del equipo."}
+]},
+{t:"El Product Owner",d:"Tu rol: valor, Product Backlog y toma de decisiones. Es el módulo más importante.",cards:[
+{h:"Maximizar el valor",b:"<p>El Product Owner es responsable de <b>maximizar el valor del producto</b> que resulta del trabajo del Scrum Team.</p><p>Cómo lo hace varía mucho según la organización y la persona; la guía no impone un método.</p>",k:"Valor, no velocidad ni cantidad de funcionalidades. Ante la duda en el examen, elegí la opción que habla de valor."},
+{h:"Gestión del Product Backlog",b:"<p>El Product Owner es responsable de:</p><ul><li>Desarrollar y comunicar el Objetivo del Producto.</li><li>Crear y comunicar los elementos del Product Backlog.</li><li>Ordenar los elementos del Product Backlog.</li><li>Asegurar que el Product Backlog sea transparente, visible y se entienda.</li></ul>",k:"Puede delegar ese trabajo, pero sigue siendo el responsable. Delegar no transfiere la responsabilidad."},
+{h:"Una persona, no un comité",b:"<p>El Product Owner es <b>una persona</b>. Puede representar las necesidades de muchos interesados en el Product Backlog, pero la decisión es suya.</p><p>Quien quiera cambiar el Product Backlog tiene que <b>convencer al Product Owner</b>.</p>",k:"Si en una pregunta un gerente agrega ítems directamente o un comité decide el orden, esa opción es incorrecta."},
+{h:"Respeto a sus decisiones",b:"<p>Para que el Product Owner tenga éxito, <b>toda la organización tiene que respetar sus decisiones</b>.</p><p>Esas decisiones se ven en el contenido y el orden del Product Backlog, y en el Increment que se inspecciona en la Sprint Review.</p>",k:"Solo el Product Owner puede cancelar un Sprint, y lo hace si el Objetivo del Sprint queda obsoleto."},
+{h:"Qué no hace el Product Owner",b:"<ul><li>No decide <b>cómo</b> los Developers hacen el trabajo.</li><li>No decide <b>cuánto</b> trabajo entra en el Sprint: eso lo eligen los Developers en la Sprint Planning, conversando con él.</li><li>No estima los elementos: el dimensionamiento lo hacen los Developers.</li><li>No tiene obligación de ir a la Daily Scrum, salvo que trabaje en ítems del Sprint Backlog.</li></ul>",k:"Qué y por qué: Product Owner. Cómo y cuánto: Developers."}
+],qz:[
+{q:"¿Cuál es la responsabilidad central del Product Owner?",o:["Maximizar el valor del producto","Maximizar la velocidad del equipo","Asegurar que se cumplan los plazos","Escribir todas las historias de usuario"],a:0,w:"La guía define al Product Owner como responsable de maximizar el valor del producto."},
+{q:"¿El Product Owner puede delegar la gestión del Product Backlog?",o:["Sí, pero sigue siendo el responsable","No, nunca","Sí, y la responsabilidad pasa a quien la recibe","Solo al Scrum Master"],a:0,w:"Puede delegar el trabajo, pero no la responsabilidad."},
+{q:"Un gerente necesita que se priorice una funcionalidad urgente. ¿Qué tiene que hacer?",o:["Hablar con el Product Owner y tratar de convencerlo","Agregarla arriba del Product Backlog","Pedírsela directamente a los Developers","Plantearla en la Daily Scrum"],a:0,w:"Quien quiera cambiar el Product Backlog lo hace convenciendo al Product Owner."},
+{q:"¿Quién tiene la autoridad para cancelar un Sprint?",o:["Solo el Product Owner","El Scrum Master","Los Developers","Los interesados clave"],a:0,w:"Solo el Product Owner, y cuando el Objetivo del Sprint se vuelve obsoleto."},
+{q:"¿Quién decide cuántos elementos del Product Backlog entran en un Sprint?",o:["Los Developers, conversando con el Product Owner","El Product Owner","El Scrum Master","Los interesados en la Sprint Review"],a:0,w:"En la Sprint Planning los Developers seleccionan los elementos a través de una conversación con el Product Owner."},
+{q:"En una empresa grande, ¿puede el rol de Product Owner ser un comité?",o:["No, es una sola persona que puede representar a muchos interesados","Sí, si el producto es muy grande","Sí, si el Scrum Master lo aprueba","Solo en equipos con más de 10 personas"],a:0,w:"El Product Owner es una persona, no un comité."}
+]},
+{t:"Los eventos",d:"El Sprint y sus cuatro eventos: propósito, quién participa y límites de tiempo.",cards:[
+{h:"El Sprint",b:"<p>Es el contenedor de todos los demás eventos: un evento de duración fija de <b>un mes o menos</b>. Un Sprint nuevo empieza inmediatamente después del anterior.</p><p>Durante el Sprint:</p><ul><li>No se hacen cambios que pongan en peligro el Objetivo del Sprint.</li><li>La calidad no baja.</li><li>El Product Backlog se refina según haga falta.</li><li>El alcance se puede aclarar y renegociar con el Product Owner.</li></ul>",k:"No existen el \"Sprint 0\", el \"Sprint de estabilización\" ni pausas entre Sprints."},
+{h:"Sprint Planning",b:"<p>Inicia el Sprint. Responde tres preguntas:</p><ul><li><b>Por qué</b> es valioso este Sprint: el equipo define el Objetivo del Sprint, que tiene que quedar listo antes de que termine la Planning.</li><li><b>Qué</b> se puede hacer: los Developers eligen elementos del backlog con el Product Owner.</li><li><b>Cómo</b> se hará: lo deciden solo los Developers.</li></ul><p>Máximo <b>8 horas</b> para un Sprint de un mes.</p>",k:"Objetivo del Sprint, más elementos elegidos, más el plan, forman el Sprint Backlog."},
+{h:"Daily Scrum",b:"<p>Evento de <b>15 minutos para los Developers</b>, a la misma hora y en el mismo lugar. Sirve para inspeccionar el progreso hacia el Objetivo del Sprint y ajustar el Sprint Backlog.</p><p>Los Developers eligen la estructura que quieran. Si el Product Owner o el Scrum Master trabajan en ítems del Sprint Backlog, participan como Developers.</p>",k:"No es una reunión de reporte al Scrum Master ni al Product Owner, y no hace falta seguir las \"tres preguntas\"."},
+{h:"Sprint Review",b:"<p>Inspecciona el resultado del Sprint y define adaptaciones futuras. El equipo muestra su trabajo a los interesados clave y se discute el progreso hacia el Objetivo del Producto. El Product Backlog se puede ajustar.</p><p>Es el penúltimo evento. Máximo <b>4 horas</b> para un Sprint de un mes.</p>",k:"Es una sesión de trabajo, no solo una presentación o demo. Tampoco es una \"puerta\" para aprobar entregas."},
+{h:"Sprint Retrospective",b:"<p>Planifica formas de aumentar la <b>calidad y la efectividad</b>. El equipo inspecciona personas, interacciones, procesos, herramientas y su Definición de Terminado.</p><p>Las mejoras más útiles se encaran cuanto antes, y hasta pueden entrar al Sprint Backlog del siguiente Sprint.</p><p>Cierra el Sprint. Máximo <b>3 horas</b> para un Sprint de un mes.</p>",k:"Orden de los límites: Planning 8 h, Review 4 h, Retrospective 3 h, Daily 15 min. Para Sprints más cortos, suelen ser menores."},
+{h:"Refinamiento",b:"<p>El refinamiento del Product Backlog es dividir y detallar los elementos (descripción, orden, tamaño) para que estén listos para una Sprint Planning.</p><p><b>No es un evento</b>: es una actividad continua.</p>",k:"Si te preguntan cuántos eventos tiene Scrum: cinco (el Sprint y los cuatro que contiene). El refinamiento no cuenta."}
+],qz:[
+{q:"¿Cuál es la duración máxima de un Sprint?",o:["Un mes","Dos semanas","Seis semanas","La que defina el Scrum Master"],a:0,w:"Los Sprints duran un mes o menos."},
+{q:"¿Cuándo tiene que quedar definido el Objetivo del Sprint?",o:["Antes de que termine la Sprint Planning","En la primera Daily Scrum","Antes de la Sprint Review","Lo define el Product Owner antes de la Planning"],a:0,w:"El Objetivo del Sprint se define entre todo el equipo y debe completarse antes de terminar la Planning."},
+{q:"¿Para quién es la Daily Scrum?",o:["Para los Developers","Para todo el Scrum Team, con asistencia obligatoria","Para que el equipo reporte al Scrum Master","Para que el Product Owner revise el avance"],a:0,w:"Es un evento de 15 minutos para los Developers."},
+{q:"A mitad del Sprint, los Developers ven que no llegan con todo lo planificado. ¿Qué corresponde?",o:["Renegociar el alcance con el Product Owner sin poner en peligro el Objetivo del Sprint","Extender el Sprint una semana","Bajar la exigencia de calidad para llegar","Cancelar el Sprint"],a:0,w:"El alcance se puede aclarar y renegociar con el Product Owner; la calidad no baja y el Sprint no se extiende."},
+{q:"¿Qué evento cierra el Sprint?",o:["Sprint Retrospective","Sprint Review","Sprint Planning del siguiente Sprint","El refinamiento"],a:0,w:"La Retrospective concluye el Sprint; la Review es el penúltimo evento."},
+{q:"¿Qué es el refinamiento del Product Backlog?",o:["Una actividad continua, no un evento","Un evento obligatorio de 2 horas","Parte de la Sprint Retrospective","Una tarea exclusiva del Scrum Master"],a:0,w:"El refinamiento es una actividad continua para detallar y ordenar los elementos."}
+]},
+{t:"Artefactos y compromisos",d:"Product Backlog, Sprint Backlog e Increment, cada uno con su compromiso.",cards:[
+{h:"Tres artefactos, tres compromisos",b:"<ul><li><b>Product Backlog</b> → Objetivo del Producto (Product Goal).</li><li><b>Sprint Backlog</b> → Objetivo del Sprint (Sprint Goal).</li><li><b>Increment</b> → Definición de Terminado (Definition of Done).</li></ul><p>Los compromisos dan transparencia y foco: contra ellos se mide el progreso.</p>",k:"Este cuadro sale seguro en el examen. Aprendelo de memoria, en inglés y en español."},
+{h:"Product Backlog",b:"<p>Lista <b>emergente y ordenada</b> de lo que hace falta para mejorar el producto. Es la <b>única fuente</b> de trabajo del Scrum Team.</p><p>El <b>Objetivo del Producto</b> describe un estado futuro del producto; es el objetivo a largo plazo del equipo. Hay que cumplirlo (o abandonarlo) antes de pasar al siguiente.</p>",k:"Los Developers que van a hacer el trabajo son los responsables del dimensionamiento (estimar)."},
+{h:"Sprint Backlog",b:"<p>Se compone del <b>Objetivo del Sprint (por qué)</b>, los elementos seleccionados <b>(qué)</b> y el plan para entregar el Increment <b>(cómo)</b>.</p><p>Es un plan <b>de y para los Developers</b>, se actualiza durante todo el Sprint y tiene que tener detalle suficiente para inspeccionarlo en la Daily.</p>",k:"El Objetivo del Sprint es fijo durante el Sprint; los elementos y el plan pueden cambiar a medida que se aprende."},
+{h:"Increment y Definición de Terminado",b:"<p>Un Increment es un paso concreto hacia el Objetivo del Producto. Se suma a los anteriores y tiene que ser <b>utilizable</b>.</p><ul><li>Se pueden crear <b>varios Increments</b> en un Sprint.</li><li>Se pueden <b>entregar antes</b> de que termine el Sprint.</li><li>Si un elemento no cumple la Definición de Terminado, no se presenta en la Review y <b>vuelve al Product Backlog</b>.</li></ul>",k:"Si la organización tiene una Definición de Terminado estándar, todos los equipos la siguen como mínimo. Si varios equipos comparten producto, comparten la misma definición."}
+],qz:[
+{q:"¿Cuál es el compromiso del Increment?",o:["La Definición de Terminado","El Objetivo del Sprint","El Objetivo del Producto","Los criterios de aceptación"],a:0,w:"Product Backlog → Objetivo del Producto; Sprint Backlog → Objetivo del Sprint; Increment → Definición de Terminado."},
+{q:"¿De quién es el Sprint Backlog?",o:["De los Developers","Del Product Owner","Del Scrum Master","De todo el Scrum Team y los interesados"],a:0,w:"Es un plan hecho por y para los Developers."},
+{q:"¿Quién dimensiona (estima) los elementos del Product Backlog?",o:["Los Developers que harán el trabajo","El Product Owner","El Scrum Master","El Product Owner con los interesados"],a:0,w:"El Product Owner puede ayudar a entender las alternativas, pero el dimensionamiento es de los Developers."},
+{q:"Al final del Sprint, un elemento no cumple la Definición de Terminado. ¿Qué pasa?",o:["No forma parte del Increment y vuelve al Product Backlog","Se presenta igual en la Review como avance","Se extiende el Sprint hasta terminarlo","Se marca como terminado con una nota"],a:0,w:"Solo lo que cumple la Definición de Terminado forma parte del Increment."},
+{q:"¿Se puede entregar un Increment a los interesados antes de que termine el Sprint?",o:["Sí","No, solo después de la Sprint Review","Solo si el Scrum Master lo aprueba","Solo en el último Sprint del proyecto"],a:0,w:"La Review no es una puerta para liberar valor; se pueden entregar Increments antes."},
+{q:"¿Qué compone el Sprint Backlog?",o:["Objetivo del Sprint, elementos seleccionados y el plan para entregarlos","Solo los elementos seleccionados","Todo el Product Backlog ordenado","Las tareas asignadas por el Scrum Master"],a:0,w:"Por qué (objetivo), qué (elementos) y cómo (plan)."}
+]},
+{t:"Valor y producto",d:"Cómo piensa un Product Owner el valor, según la Evidence-Based Management Guide.",cards:[
+{h:"Qué es un producto",b:"<p>Un producto es un <b>vehículo para entregar valor</b>. Tiene un límite claro, interesados conocidos y usuarios o clientes bien definidos.</p><p>Puede ser un servicio, un producto físico o algo más abstracto.</p>",k:"Esto conecta con tu experiencia: el proceso social de Módulo Sanitario también es un producto, con usuarios (las familias) e interesados."},
+{h:"Resultados, no producción",b:"<p>El valor se mide por los <b>resultados</b> para usuarios y clientes (outcomes), no por la cantidad de cosas producidas (outputs).</p><p>Por eso la <b>velocidad</b> del equipo o la cantidad de funcionalidades entregadas no prueban que el producto genere valor.</p>",k:"Si la velocidad sube, eso no dice nada sobre el valor por sí solo."},
+{h:"Las cuatro áreas clave de valor",b:"<ul><li><b>Valor actual</b> (Current Value): el valor que el producto entrega hoy.</li><li><b>Valor no realizado</b> (Unrealized Value): el valor potencial que todavía se podría capturar.</li><li><b>Capacidad de innovar</b> (Ability to Innovate): qué tan bien se pueden entregar cosas nuevas.</li><li><b>Tiempo de llegada al mercado</b> (Time to Market): qué tan rápido se aprende y se entrega.</li></ul>",k:"Son de la Evidence-Based Management Guide, que también entra en el examen. Aprendé los nombres en inglés."},
+{h:"Metas en capas",b:"<p>La guía de gestión basada en evidencia propone metas a distinta distancia:</p><ul><li><b>Meta estratégica</b> (Strategic Goal): lejana y ambiciosa.</li><li><b>Meta intermedia</b> (Intermediate Goal): un paso concreto hacia la estratégica.</li><li><b>Meta táctica inmediata</b> (Immediate Tactical Goal): lo próximo, en general a nivel de Sprint.</li></ul><p>Se avanza con ciclos de experimentar, medir y adaptar.</p>",k:"Es el mismo empirismo de Scrum, aplicado a la estrategia del producto."},
+{h:"Ordenar el Product Backlog",b:"<p>Scrum no impone un método para ordenar. El Product Owner ordena como mejor sirva para maximizar el valor, considerando por ejemplo:</p><ul><li>valor para usuarios y negocio,</li><li>riesgo y lo que se aprende al reducirlo,</li><li>dependencias,</li><li>el Objetivo del Producto.</li></ul>",k:"La guía habla de \"ordenar\", no de \"priorizar\". Cualquier opción que imponga una técnica obligatoria es sospechosa."}
+],qz:[
+{q:"¿Cuál de estas es una de las cuatro áreas clave de valor?",o:["Capacidad de innovar","Velocidad del equipo","Horas trabajadas","Cantidad de historias de usuario terminadas"],a:0,w:"Valor actual, valor no realizado, capacidad de innovar y tiempo de llegada al mercado."},
+{q:"¿Qué muestra mejor que un producto genera valor?",o:["Los resultados para usuarios y clientes","La velocidad del equipo","El porcentaje de horas facturadas","La cantidad de funcionalidades entregadas"],a:0,w:"El valor se mide por resultados (outcomes), no por producción (outputs)."},
+{q:"¿Qué significa \"valor no realizado\"?",o:["Valor potencial que todavía se podría capturar","Valor que se perdió por errores","Trabajo terminado que no se entregó","Funcionalidades que nadie usa"],a:0,w:"Es la brecha entre lo que el producto entrega hoy y lo que podría entregar."},
+{q:"La velocidad del equipo subió 30%. ¿Qué podés concluir sobre el valor del producto?",o:["Nada por sí sola: hay que mirar los resultados","Que el valor subió 30%","Que el equipo trabaja de más","Que conviene alargar los Sprints"],a:0,w:"La velocidad mide producción, no valor."},
+{q:"¿Cómo debe ordenar el Product Owner el Product Backlog?",o:["Como mejor sirva para maximizar el valor; Scrum no impone un método","Solo por valor de negocio","Por orden de llegada","Por votación de los interesados"],a:0,w:"La guía no prescribe una técnica; el criterio es maximizar el valor."}
+]}
+];
+
+const v=document.getElementById('view');
+let st={};
+try{st=JSON.parse(localStorage.getItem('pspo-st')||'{}')}catch(e){st={}}
+const save=()=>{try{localStorage.setItem('pspo-st',JSON.stringify(st))}catch(e){}};
+let cur={tab:'mod'};
+
+const shuf=a=>{const b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b};
+const prep=q=>({q:q.q,w:q.w,o:(q.o.length==2?q.o.map((t,i)=>({t,ok:i==q.a})):shuf(q.o.map((t,i)=>({t,ok:i==q.a}))))});
+
+function header(){
+  const passed=M.filter((m,i)=>(st['b'+i]||0)>=80).length;
+  document.getElementById('pbar').style.width=(passed/M.length*100)+'%';
+  document.getElementById('ptxt').textContent=passed+' de '+M.length+' módulos aprobados';
+  document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab==cur.tab));
+}
+
+function home(){
+  cur={tab:'mod'};
+  v.innerHTML=`<div class="intro"><div class="box"><h2>Cómo usar esta guía</h2><ul><li>Hacé los módulos en orden: cada uno tiene tarjetas para leer y un quiz de 5 o 6 preguntas.</li><li>Un módulo queda aprobado con 80% o más. El examen real pide 85%.</li><li>Cuando apruebes los seis, pasá al simulacro final y a los simuladores oficiales.</li></ul></div><div class="box"><h2>El examen real</h2><ul><li>80 preguntas en 60 minutos, en inglés.</li><li>Se aprueba con 85%.</li><li>Cuesta 200 dólares por intento y no vence.</li></ul></div></div>
+  <div class="grid">${M.map((m,i)=>{const b=st['b'+i];const s=b==null?'Sin empezar':(b>=80?'Aprobado, mejor nota '+b+'%':'Mejor nota '+b+'%, repasalo');return `<button class="mod" data-act="open" data-i="${i}"><span class="n">Módulo ${i+1} · ${m.cards.length} tarjetas</span><h3>${m.t}</h3><p>${m.d}</p><div class="mbar"><i style="width:${b||0}%"></i></div><span class="mstate ${b>=80?'done':''}">${s}</span></button>`}).join('')}</div>`;
+  header();
+}
+
+function study(i,c){
+  cur={tab:'mod',mode:'study',i,c};
+  const m=M[i],k=m.cards[c],last=c==m.cards.length-1;
+  v.innerHTML=`<div class="deck"><div class="crumb"><h2>${m.t}</h2><button class="btn" data-act="home">Volver a módulos</button></div>
+  <div class="stack"><article class="card"><span class="k">Tarjeta ${c+1} de ${m.cards.length}</span><h3>${k.h}</h3><div class="body">${k.b}</div><div class="key"><b>Para el examen</b>${k.k}</div></article></div>
+  <div class="dots">${m.cards.map((_,j)=>`<span class="${j<=c?'on':''}"></span>`).join('')}</div>
+  <div class="nav"><button class="btn" data-act="prev" ${c==0?'disabled':''}>Anterior</button>${last?`<button class="btn pri" data-act="quiz">Hacer el quiz</button>`:`<button class="btn pri" data-act="next">Siguiente</button>`}</div></div>`;
+  header();
+}
+
+function quiz(list,ctx){
+  cur={tab:ctx.exam?'exam':'mod',mode:'quiz',list,ctx,n:0,right:0,miss:[],ans:false};
+  ask();
+}
+function ask(){
+  const s=cur,q=s.list[s.n];
+  v.innerHTML=`<div class="deck"><div class="crumb"><h2>${s.ctx.title}</h2><button class="btn" data-act="${s.ctx.exam?'examhome':'home'}">Salir</button></div>
+  <div class="stack"><article class="card"><span class="k">Pregunta ${s.n+1} de ${s.list.length}</span><p class="q">${q.q}</p><div class="opts">${q.o.map((o,j)=>`<button class="opt" data-act="pick" data-j="${j}">${o.t}</button>`).join('')}</div><div id="why"></div></article></div>
+  <div class="dots">${s.list.map((_,j)=>`<span class="${j<s.n?'on':''}"></span>`).join('')}</div>
+  <div class="nav"><span></span><button class="btn pri" data-act="nextq" id="nq" disabled>${s.n==s.list.length-1?'Ver resultado':'Siguiente'}</button></div></div>`;
+  header();
+}
+function pick(j){
+  const s=cur;if(s.ans)return;s.ans=true;
+  const q=s.list[s.n],ok=q.o[j].ok;
+  if(ok)s.right++;else s.miss.push(q);
+  v.querySelectorAll('.opt').forEach((b,x)=>{b.disabled=true;if(q.o[x].ok)b.classList.add('ok');else if(x==j)b.classList.add('bad')});
+  v.querySelector('#why').innerHTML=`<div class="why"><b>${ok?'Correcto.':'No es esa.'}</b>${q.w}</div>`;
+  const nq=v.querySelector('#nq');nq.disabled=false;nq.focus();
+}
+function result(){
+  const s=cur,pct=Math.round(s.right/s.list.length*100),goal=s.ctx.exam?85:80,ok=pct>=goal;
+  if(!s.ctx.exam){const key='b'+s.ctx.i;st[key]=Math.max(st[key]||0,pct);save()}else{st.ex=Math.max(st.ex||0,pct);save()}
+  const right=s.miss.map(q=>q.o.find(o=>o.ok).t);
+  v.innerHTML=`<div class="deck"><div class="crumb"><h2>${s.ctx.title}</h2></div>
+  <div class="card"><span class="k">Resultado</span><div class="score ${ok?'pass':'fail'}">${pct}%</div><p>${s.right} de ${s.list.length} correctas. ${ok?(s.ctx.exam?'Estás por encima del 85% que pide el examen real.':'Módulo aprobado.'):(s.ctx.exam?'El examen pide 85%. Repasá los módulos donde fallaste.':'Para aprobar necesitás 80%. Volvé a leer las tarjetas y repetí el quiz.')}</p>
+  ${s.miss.length?`<h3 style="font-size:22px;margin-top:8px">Para repasar</h3>`+s.miss.map((q,x)=>`<div class="miss"><p><b>${q.q}</b></p><p>Respuesta correcta: ${right[x]}</p><p class="s">${q.w}</p></div>`).join(''):''}
+  </div>
+  <div class="nav" style="margin-top:16px">${s.ctx.exam?`<button class="btn" data-act="examhome">Volver</button><button class="btn pri" data-act="exam">Otro simulacro</button>`:`<button class="btn" data-act="open" data-i="${s.ctx.i}">Releer tarjetas</button><button class="btn" data-act="quiz">Repetir quiz</button><button class="btn pri" data-act="home">Volver a módulos</button>`}</div></div>`;
+  if(!s.ctx.exam)cur={tab:'mod',mode:'res',i:s.ctx.i};
+  header();
+}
+
+function plan(){
+  cur={tab:'plan'};
+  v.innerHTML=`<div class="box" style="margin-bottom:8px"><h2>Plan para rendir en 3 semanas</h2><p>Con una hora por día alcanza. La regla para comprar el examen: sacar 95% o más en el Product Owner Open tres veces seguidas.</p></div>
+  <div class="week"><div class="w">1</div><div><h3>Entender la base</h3><ul><li>Leé la Scrum Guide en español de punta a punta (unos 40 minutos).</li><li>Módulos 1, 2 y 3 de esta guía, con sus quiz.</li><li>Al final de la semana, primer intento del Product Owner Open, solo para ver dónde estás.</li></ul></div></div>
+  <div class="week"><div class="w">2</div><div><h3>Completar y practicar</h3><ul><li>Módulos 4, 5 y 6.</li><li>Leé la Scrum Guide en inglés, marcando los términos exactos.</li><li>Leé la Evidence-Based Management Guide.</li><li>Product Owner Open día por medio, y los tests de Mikhail Lapshin. Anotá cada error y buscá la respuesta en la guía.</li></ul></div></div>
+  <div class="week"><div class="w">3</div><div><h3>Simular y rendir</h3><ul><li>Simulacro final de esta guía hasta superar 85% con holgura.</li><li>Product Owner Open todos los días hasta lograr tres veces seguidas 95% o más.</li><li>Comprá el intento y rendí en un horario tranquilo: son 45 segundos por pregunta, marcá las dudosas y volvé al final.</li></ul></div></div>
+  <div class="box" style="margin-top:16px"><h2>Material</h2><ul><li><a href="https://scrumguides.org" target="_blank" rel="noopener">Scrum Guide</a>, en español y en inglés.</li><li><a href="https://www.scrum.org/resources/evidence-based-management-guide" target="_blank" rel="noopener">Evidence-Based Management Guide</a>.</li><li><a href="https://www.scrum.org/open-assessments/product-owner-open" target="_blank" rel="noopener">Product Owner Open</a>, el simulador oficial gratuito.</li><li><a href="https://mlapshin.com" target="_blank" rel="noopener">Tests de Mikhail Lapshin</a>, gratuitos.</li></ul></div>
+  <p class="note">Resumen propio basado en la Scrum Guide 2020 y la Evidence-Based Management Guide. No reemplaza leer las guías originales.</p>`;
+  header();
+}
+
+function examHome(){
+  cur={tab:'exam'};
+  const n=M.reduce((a,m)=>a+m.qz.length,0);
+  v.innerHTML=`<div class="deck"><div class="card"><span class="k">Simulacro final</span><h3>20 preguntas mezcladas de los seis módulos</h3><p>Las preguntas salen al azar de un banco de ${n}. Igual que en el examen real, el objetivo es 85% o más.</p>${st.ex!=null?`<p>Tu mejor resultado: <b>${st.ex}%</b></p>`:''}<div class="key"><b>Consejo</b>Hacelo cuando hayas aprobado los seis módulos. Después pasá al Product Owner Open, que es más parecido al examen real.</div></div>
+  <div class="nav" style="margin-top:16px"><span></span><button class="btn pri" data-act="exam">Empezar simulacro</button></div></div>`;
+  header();
+}
+
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act],[data-tab]');if(!b)return;
+  if(b.dataset.tab){const t=b.dataset.tab;t=='mod'?home():t=='plan'?plan():examHome();window.scrollTo(0,0);return}
+  const a=b.dataset.act;
+  if(a=='home')home();
+  else if(a=='examhome')examHome();
+  else if(a=='open')study(+b.dataset.i,0);
+  else if(a=='next')study(cur.i,cur.c+1);
+  else if(a=='prev')study(cur.i,cur.c-1);
+  else if(a=='quiz'){const i=cur.i;quiz(M[i].qz.map(prep),{i,title:'Quiz: '+M[i].t})}
+  else if(a=='pick')pick(+b.dataset.j);
+  else if(a=='nextq'){cur.n++;cur.ans=false;cur.n<cur.list.length?ask():result()}
+  else if(a=='exam'){const all=M.flatMap(m=>m.qz);quiz(shuf(all).slice(0,20).map(prep),{exam:true,title:'Simulacro final'})}
+  if(a!='pick')window.scrollTo(0,0);
+});
+document.addEventListener('keydown',e=>{
+  if(cur.mode!='study')return;
+  if(e.key=='ArrowRight'&&cur.c<M[cur.i].cards.length-1)study(cur.i,cur.c+1);
+  if(e.key=='ArrowLeft'&&cur.c>0)study(cur.i,cur.c-1);
+});
+home();
+}
+</script>
+</body>
+</html>
