@@ -135,6 +135,17 @@ a{color:inherit}
 .book td{border:1px solid var(--line);padding:6px 10px;vertical-align:top}
 .book td p{margin:0}
 .book img{max-width:100%}
+#tts{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--green);color:#fff;padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));box-shadow:0 -4px 16px rgba(0,0,0,.18)}
+#tts[hidden]{display:none}
+#tts .in{max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+#tts button{font:600 15px Inter,sans-serif;min-height:42px;padding:8px 16px;border-radius:10px;border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;cursor:pointer}
+#tts button.main{background:var(--lime);color:#00463c;border-color:var(--lime);min-width:104px}
+#tts select{font:15px Inter,sans-serif;min-height:42px;border-radius:10px;border:1px solid rgba(255,255,255,.35);background:#0b5a4e;color:#fff;padding:6px 8px;max-width:220px}
+#tts label{display:flex;align-items:center;gap:6px;font-size:15px;white-space:nowrap}
+#tts input{width:20px;height:20px;accent-color:var(--lime)}
+#tts .msg{font-size:14px;color:#cfe5dc;flex:1 1 180px}
+body.has-tts main{padding-bottom:120px}
+.reading{background:var(--keybg);border-radius:6px;box-shadow:0 0 0 4px var(--keybg)}
 .attr{font-size:14px;color:var(--soft);max-width:820px;margin:0 auto 14px}
 @media(max-width:700px){.intro{grid-template-columns:minmax(0,1fr)}.week{grid-template-columns:minmax(0,1fr);gap:4px}.card{min-height:300px}.nav .btn{flex:1 1 auto}}
 </style>
@@ -158,6 +169,7 @@ a{color:inherit}
   </div>
 </header>
 <main><div class="wrap" id="view"></div></main>
+<div id="tts" hidden><div class="in"><button class="main" id="tts-play" type="button">Listen</button><button id="tts-stop" type="button">Stop</button><select id="tts-rate" aria-label="Speed"><option value="0.8">0.8x</option><option value="1" selected>1x</option><option value="1.15">1.15x</option><option value="1.3">1.3x</option><option value="1.5">1.5x</option></select><select id="tts-voice" aria-label="Voice"></select><label><input type="checkbox" id="tts-auto"> Keep going</label><span class="msg" id="tts-msg">Starts from the first paragraph on screen.</span></div></div>
 
 <script>
 {
@@ -183,6 +195,73 @@ const shuf=a=>{const b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floo
 const prep=q=>({q:q.q,w:q.w,o:(q.o.length==2?q.o.map((t,i)=>({t,ok:i==q.a})):shuf(q.o.map((t,i)=>({t,ok:i==q.a}))))});
 const top=()=>window.scrollTo(0,0);
 
+const TTS={on:false,q:[],i:0,tok:0};
+const syn=window.speechSynthesis;
+const $=id=>document.getElementById(id);
+function ttsVisible(){return cur.mode=='study'||cur.tab=='guia'||cur.tab=='notes'}
+function ttsLang(){return cur.tab=='guia'&&(st.glang||'en')=='es'?'es':'en'}
+function fillVoices(){
+  if(!syn)return;
+  const lang=ttsLang(),vs=syn.getVoices().filter(x=>x.lang.toLowerCase().startsWith(lang));
+  const rank=x=>/natural|neural|premium|enhanced|google|samantha|daniel|karen|moira|serena|monica|paulina/i.test(x.name)?0:1;
+  vs.sort((a,b)=>rank(a)-rank(b)||a.name.localeCompare(b.name));
+  const sel=$('tts-voice'),want=st['voice_'+lang];
+  sel.innerHTML=vs.map(x=>`<option value="${x.name}" ${x.name==want?'selected':''}>${x.name} (${x.lang})</option>`).join('')||'<option value="">Default voice</option>';
+}
+function ttsBar(){
+  const show=ttsVisible()&&!!syn;
+  $('tts').hidden=!show;document.body.classList.toggle('has-tts',show);
+  if(show){fillVoices();$('tts-rate').value=String(st.rate||1);$('tts-auto').checked=!!st.auto;$('tts-msg').textContent=cur.mode=='study'?'Reads the card aloud.':'Starts from the first paragraph on screen.'}
+}
+function ttsQueue(){
+  const sel=cur.mode=='study'?'.card h3, .card .body p, .card .body li, .card .key':'.book h2, .book h3, .book h4, .book p, .book li, .book td';
+  let els=[...v.querySelectorAll(sel)].filter(e=>!e.closest('.sub')&&!e.classList.contains('imgph')&&!e.querySelector('p,li')&&e.textContent.trim());
+  let start=0;
+  if(cur.mode!='study'){start=els.findIndex(e=>e.getBoundingClientRect().bottom>90);if(start<0)start=0}
+  const q=[];
+  els.slice(start).forEach(e=>{
+    const txt=e.textContent.replace(/\s+/g,' ').trim();
+    const parts=txt.length>220?(txt.match(/[^.!?;:]+[.!?;:]*\s*/g)||[txt]):[txt];
+    parts.forEach(p=>{if(p.trim())q.push({e,t:p.trim()})});
+  });
+  return q;
+}
+function ttsClear(){v.querySelectorAll('.reading').forEach(e=>e.classList.remove('reading'))}
+function ttsStop(){TTS.on=false;TTS.tok++;if(syn)syn.cancel();ttsClear();if($('tts-play'))$('tts-play').textContent='Listen'}
+function ttsPause(){TTS.on=false;TTS.tok++;if(syn)syn.cancel();$('tts-play').textContent='Resume'}
+function ttsStart(fresh){
+  if(!syn)return;
+  if(fresh||!TTS.q.length||TTS.i>=TTS.q.length){TTS.q=ttsQueue();TTS.i=0}
+  if(!TTS.q.length)return;
+  TTS.on=true;$('tts-play').textContent='Pause';ttsNext();
+}
+function ttsNext(){
+  const tok=++TTS.tok;
+  if(TTS.i>=TTS.q.length){ttsDone();return}
+  const it=TTS.q[TTS.i];
+  ttsClear();it.e.classList.add('reading');
+  const r=it.e.getBoundingClientRect();if(r.top<70||r.bottom>innerHeight-130)it.e.scrollIntoView({block:'center',behavior:'smooth'});
+  const u=new SpeechSynthesisUtterance(it.t),lang=ttsLang();
+  const vs=syn.getVoices(),name=$('tts-voice').value,vo=vs.find(x=>x.name==name);
+  if(vo)u.voice=vo;u.lang=vo?vo.lang:(lang=='es'?'es-AR':'en-US');u.rate=+$('tts-rate').value||1;
+  u.onend=()=>{if(tok!=TTS.tok||!TTS.on)return;TTS.i++;ttsNext()};
+  u.onerror=()=>{if(tok!=TTS.tok)return;TTS.on=false;$('tts-play').textContent='Listen'};
+  syn.speak(u);
+}
+function ttsDone(){
+  TTS.on=false;ttsClear();$('tts-play').textContent='Listen';TTS.q=[];
+  if(!$('tts-auto').checked)return;
+  if(cur.mode=='study'){const m=MD[cur.id];if(cur.c<m.cards.length-1){study(cur.id,cur.c+1);top();setTimeout(()=>ttsStart(true),250)}}
+  else if(cur.tab=='notes'&&cur.ni<NOTES.length-1){notes(cur.ni+1);setTimeout(()=>ttsStart(true),250)}
+}
+if(syn){syn.onvoiceschanged=()=>{if(ttsVisible())fillVoices()};
+  $('tts-play').addEventListener('click',()=>{TTS.on?ttsPause():ttsStart(false)});
+  $('tts-stop').addEventListener('click',()=>{ttsStop();TTS.q=[]});
+  $('tts-rate').addEventListener('change',e=>{st.rate=+e.target.value;save();if(TTS.on){ttsPause();ttsStart(false)}});
+  $('tts-voice').addEventListener('change',e=>{st['voice_'+ttsLang()]=e.target.value;save();if(TTS.on){ttsPause();ttsStart(false)}});
+  $('tts-auto').addEventListener('change',e=>{st.auto=e.target.checked;save()});
+}
+
 function header(){
   const a=ORD.filter(passed).length,b=EXAM.filter(passed).length;
   document.getElementById('pbar1').style.width=(b/EXAM.length*100)+'%';
@@ -190,11 +269,12 @@ function header(){
   document.getElementById('pbar2').style.width=(a/ORD.length*100)+'%';
   document.getElementById('ptxt2').textContent='Overall: '+a+' of '+ORD.length+' modules';
   document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x.dataset.tab==cur.tab));
+  ttsBar();
 }
 
 function home(){
   cur={tab:'mod'};
-  v.innerHTML=`<div class="intro"><div class="box"><h2>How to use this guide</h2><ul><li>Each module has cards to read and a 5 or 6 question quiz. You pass with 80% or more.</li><li>Modules tagged <b>For the exam</b> are what you need for the certification. Modules tagged <b>For interviews</b> prepare you for the job.</li><li>The <b>Scrum Guide</b> tab has the full official guide, in English and Spanish.</li><li>The <b>My notes</b> tab has your full Google Project Management notes from Notion.</li></ul></div><div class="box"><h2>The real exam</h2><ul><li>80 questions in 60 minutes, in English.</li><li>Passing score: 85%.</li><li>200 US dollars per attempt; the certification does not expire.</li></ul></div></div>
+  v.innerHTML=`<div class="intro"><div class="box"><h2>How to use this guide</h2><ul><li>Each module has cards to read and a 5 or 6 question quiz. You pass with 80% or more.</li><li>Modules tagged <b>For the exam</b> are what you need for the certification. Modules tagged <b>For interviews</b> prepare you for the job.</li><li>The <b>Scrum Guide</b> tab has the full official guide, in English and Spanish.</li><li>The <b>My notes</b> tab has your full Google Project Management notes from Notion.</li><li>Press <b>Listen</b> at the bottom of the cards, the Scrum Guide or your notes to hear them read aloud. Turn on <b>Keep going</b> to listen like an audiobook.</li></ul></div><div class="box"><h2>The real exam</h2><ul><li>80 questions in 60 minutes, in English.</li><li>Passing score: 85%.</li><li>200 US dollars per attempt; the certification does not expire.</li></ul></div></div>
   ${PARTS.map((p,pi)=>`<section class="part"><h2>Part ${pi+1}: ${p.t}</h2><p>${p.d}</p><div class="grid">${p.m.map(id=>{const m=MD[id],b=best(id),n=ORD.indexOf(id)+1;const s=b==null?'Not started':(b>=80?'Passed, best score '+b+'%':'Best score '+b+'%, review it');return `<button class="mod" data-act="open" data-id="${id}"><span class="n"><span>Module ${n}, ${m.cards.length} cards</span><span class="tag ${m.tag}">${TAG[m.tag]}</span></span><h3>${m.t}</h3><p>${m.d}</p><div class="mbar"><i style="width:${b||0}%"></i></div><span class="mstate ${b>=80?'done':''}">${s}</span></button>`}).join('')}</div></section>`).join('')}`;
   header();
 }
@@ -273,7 +353,7 @@ function guide(anchor){
 }
 
 function notes(i){
-  cur={tab:'notes'};
+  cur={tab:'notes',ni:i};
   const s=NOTES[i],groups=[...new Set(NOTES.map(n=>n.g))];
   v.innerHTML=`<div class="gbar"><h2 style="font-size:clamp(26px,3.4vw,34px)">My notes</h2><span class="attr" style="margin:0">Google Project Management course, from your Notion page</span></div>
   <div class="nbar">${groups.map(g=>`<div class="ngroup"><span>${g}</span>${NOTES.map((n,k)=>n.g==g?`<button class="${k==i?'on':''}" data-act="note" data-i="${k}">${n.t}</button>`:'').join('')}</div>`).join('')}</div>
@@ -307,6 +387,7 @@ function examHome(){
 
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-act],[data-tab]');if(!b)return;
+  ttsStop();TTS.q=[];
   if(b.dataset.tab){const t=b.dataset.tab;t=='mod'?home():t=='guia'?guide():t=='notes'?notes(0):t=='plan'?plan():examHome();top();return}
   const a=b.dataset.act;
   if(a=='home'){home();top()}
@@ -325,7 +406,8 @@ document.addEventListener('click',e=>{
   else if(a=='gto'){const el=document.getElementById('g'+b.dataset.i);if(el){el.scrollIntoView({behavior:'smooth'});}}
 });
 document.addEventListener('keydown',e=>{
-  if(cur.mode!='study')return;
+  if(cur.mode!='study'||e.target.closest('#tts'))return;
+  if(e.key=='ArrowRight'||e.key=='ArrowLeft'){ttsStop();TTS.q=[]}
   if(e.key=='ArrowRight'&&cur.c<MD[cur.id].cards.length-1)study(cur.id,cur.c+1);
   if(e.key=='ArrowLeft'&&cur.c>0)study(cur.id,cur.c-1);
 });
